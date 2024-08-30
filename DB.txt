@@ -1,0 +1,96 @@
+1. Users collection:
+{
+_id: ObjectId,
+name: "Jaison",
+email: "jaison@123",
+password: !@#123ert,
+role: "student" or "mentor"
+created_at: 2024.08.31
+}
+
+2.Codekata collection:
+{
+_id: ObjectId,
+user_id: ObjectId,
+problem_id: String,
+date: Date,
+language: String,
+}
+
+3.Attendance collection:
+{
+_id: ObjectId,
+user_id: ObjectId,
+date: Date,
+is_present: Boolean
+}
+
+4.Topics collection:
+{
+_id: ObjectId,
+name: String,
+description: String,
+start_date: Date,
+end_date: Date
+}
+
+5.Tasks collection:
+{
+_id: ObjectId,
+user_id: ObjectId, 
+topic_id: ObjectId,
+task_name: String,
+task_description: String,
+submission_date: Date,
+status: String // submitted, reviewed, pending
+}
+
+6.Company_drives collection:
+{
+_id: ObjectId,
+company_name: String,
+drive_date: Date,
+students_appeared: Array 
+}
+
+7.Mentors collection:
+{
+_id: ObjectId,
+name: String,
+email: String,
+students_mentored: Array 
+}
+
+Queries:
+1.Find all the topics and tasks which are thought in the month of October
+
+db.topics.find({start_date: {$gte: new ISODate("2020-10-01"), $lte: new ISODate("2020-10-31")}}).toArray();
+
+2.Find all the company drives which appeared between 15 oct-2020 and 31-oct-2020
+
+db.company_drives.find({drive_date: {$gte: new ISODate("2020-10-15"), $lte: new ISODate("2020-10-31")}}).toArray();
+
+3.Find all the company drives and students who are appeared for the placement.
+
+db.company_drives.aggregate([
+{
+$lookup: {
+from: "users",
+localField: "students_appeared",
+foreignField: "_id",
+as: "students"
+}
+}
+]).toArray();
+
+4.Find the number of problems solved by the user in Codekata
+
+db.codekata.count({user_id: ObjectId("user_id_here")});
+
+5.Find all the mentors with who has the mentee's count more than 15
+
+db.mentors.find({$where: "this.students_mentored.length > 15"}).toArray();
+
+6.Find the number of users who are absent and task is not submitted  between 15 oct-2020 and 31-oct-2020
+
+db.attendance.find({date: {$gte: new ISODate("2020-10-15"), $lte: new ISODate("2020-10-31")}, is_present: false}).toArray();
